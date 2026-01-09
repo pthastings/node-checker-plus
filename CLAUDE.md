@@ -39,4 +39,10 @@ This is a Node.js + Express site status monitoring dashboard.
 
 ## Features
 
+- **Dark Mode Toggle**: Click the sun/moon icon to switch themes; persists in localStorage and respects system preference
 - **Live "Time Ago" Display**: The "Last checked" timestamp updates every second showing relative time (e.g., "just now", "30 seconds ago", "2 minutes ago")
+- **Auto-Refresh**: Status checks run automatically every 30 seconds
+- **Manual Refresh**: Click the Refresh button to trigger an immediate status check
+- **Visual Status Indicators**: Color-coded status (green=UP, red=DOWN, yellow=SLOW) with glow effects
+- **Response Time Tracking**: Displays response time in milliseconds for each site
+- **Responsive Design**: Mobile-friendly layout that adapts to smaller screens

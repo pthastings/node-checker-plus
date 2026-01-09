@@ -4,12 +4,15 @@ A lightweight web dashboard for monitoring website and API availability. Display
 
 ## Features
 
-- HTTP health checks for configured sites
-- Response time tracking in milliseconds
-- Visual status indicators (UP/DOWN/SLOW)
-- Auto-refresh every 30 seconds
-- Manual refresh option
-- Simple JSON configuration
+- **Dark Mode Toggle** - Switch between light/dark themes; saves preference to localStorage and respects system settings
+- **Live "Time Ago" Display** - Shows "Last checked: X seconds ago" with real-time updates every second
+- **HTTP Health Checks** - Monitors configured sites via HTTP requests
+- **Response Time Tracking** - Displays response time in milliseconds for each site
+- **Visual Status Indicators** - Color-coded status with glow effects (green=UP, yellow=SLOW, red=DOWN)
+- **Auto-Refresh** - Automatically checks all sites every 30 seconds
+- **Manual Refresh** - Click to trigger an immediate status check
+- **Responsive Design** - Mobile-friendly layout
+- **Simple JSON Configuration** - Easy setup via `sites.json`
 
 ## Quick Start
 
