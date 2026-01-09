@@ -1,5 +1,7 @@
 const API_BASE = '/api';
 let autoRefreshInterval = null;
+let lastCheckTime = null;
+let timeAgoInterval = null;
 
 async function fetchStatus() {
   const response = await fetch(`${API_BASE}/status`);
@@ -14,11 +16,34 @@ function formatTime(isoString) {
   return date.toLocaleTimeString();
 }
 
+function formatTimeAgo(date) {
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+
+  if (seconds < 5) return 'just now';
+  if (seconds < 60) return `${seconds} seconds ago`;
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes === 1) return '1 minute ago';
+  if (minutes < 60) return `${minutes} minutes ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours === 1) return '1 hour ago';
+  return `${hours} hours ago`;
+}
+
+function updateTimeAgoDisplay() {
+  if (!lastCheckTime) return;
+  const lastUpdated = document.getElementById('last-updated');
+  lastUpdated.textContent = `Last checked: ${formatTimeAgo(lastCheckTime)}`;
+}
+
 function renderSites(data) {
   const container = document.getElementById('sites-container');
-  const lastUpdated = document.getElementById('last-updated');
 
-  lastUpdated.textContent = `Last updated: ${formatTime(data.checkedAt)}`;
+  // Store and display the last check time
+  lastCheckTime = new Date(data.checkedAt);
+  updateTimeAgoDisplay();
 
   if (data.sites.length === 0) {
     container.innerHTML = '<div class="loading">No sites configured</div>';
@@ -69,11 +94,36 @@ async function refreshStatus() {
   }
 }
 
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.dataset.theme === 'dark';
+  html.dataset.theme = isDark ? 'light' : 'dark';
+  localStorage.setItem('theme', html.dataset.theme);
+  updateThemeIcon();
+}
+
+function updateThemeIcon() {
+  const btn = document.getElementById('theme-toggle');
+  const isDark = document.documentElement.dataset.theme === 'dark';
+  btn.textContent = isDark ? '☀️' : '🌙';
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.dataset.theme = saved || (prefersDark ? 'dark' : 'light');
+  updateThemeIcon();
+}
+
 async function init() {
+  initTheme();
   await refreshStatus();
 
   // Auto-refresh every 30 seconds
   autoRefreshInterval = setInterval(refreshStatus, 30000);
+
+  // Update time ago display every second
+  timeAgoInterval = setInterval(updateTimeAgoDisplay, 1000);
 }
 
 // Start the app
