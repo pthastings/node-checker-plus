@@ -21,7 +21,7 @@ This is a Node.js + Express site status monitoring dashboard.
 - Static files served from `public/`
 - `public/index.html` - Dashboard HTML
 - `public/styles.css` - Styling with status indicators (green/yellow/red)
-- `public/app.js` - Frontend logic with auto-refresh every 30 seconds
+- `public/app.js` - Frontend logic with auto-refresh every 30 seconds and live "time ago" display
 
 ### Configuration
 - `sites.json` - Site definitions and settings
@@ -36,3 +36,7 @@ This is a Node.js + Express site status monitoring dashboard.
 - `GET /api/status/:siteId` - Get status of a specific site
 - `POST /api/refresh` - Trigger immediate status check
 - `GET /api/config` - Get current configuration settings
+
+## Features
+
+- **Live "Time Ago" Display**: The "Last checked" timestamp updates every second showing relative time (e.g., "just now", "30 seconds ago", "2 minutes ago")
