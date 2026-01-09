@@ -1,0 +1,30 @@
+{
+  "settings": {
+    "checkInterval": 30000,
+    "defaultTimeout": 5000,
+    "slowThreshold": 2000
+  },
+  "sites": [
+    {
+      "id": "Paulie Macon",
+      "name": "Paulie Macon",
+      "url": "http://100.104.42.37/"
+    },
+    {
+      "id": "piHole local",
+      "name": "piHole local",
+      "url": "http://192.168.10.164/"
+    },
+    {
+      "id": "example",
+      "name": "Example Site",
+      "url": "https://example.com"
+    },
+	{
+      "id": "Node 1 local ",
+      "name": "BeeLink Node 1",
+      "url": "http://192.168.10.50/"
+    }
+
+  ]
+}

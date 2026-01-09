@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Status Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Site Status Dashboard</h1>
+      <div class="header-actions">
+        <span id="last-updated">Last updated: --</span>
+        <button id="refresh-btn" onclick="refreshStatus()">Refresh</button>
+      </div>
+    </header>
+
+    <main id="sites-container">
+      <div class="loading">Checking sites...</div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
