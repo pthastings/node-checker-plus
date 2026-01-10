@@ -55,11 +55,11 @@ function renderSites(data) {
       <div class="status-indicator ${site.status}"></div>
       <div class="site-info">
         <div class="site-name">${escapeHtml(site.name)}</div>
-        <div class="site-url">${escapeHtml(site.url)}</div>
+        <div class="site-url">${escapeHtml(site.url || site.hostname || site.deviceId || '')}</div>
       </div>
       <div class="site-status">
         <div class="status-text ${site.status}">${site.status}</div>
-        ${site.responseTime !== null
+        ${site.responseTime != null
           ? `<div class="response-time">${site.responseTime}ms</div>`
           : site.error
             ? `<div class="error-message">${escapeHtml(site.error)}</div>`
