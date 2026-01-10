@@ -115,6 +115,23 @@ function initTheme() {
   updateThemeIcon();
 }
 
+async function exportReport() {
+  try {
+    const data = await fetchStatus();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    a.href = url;
+    a.download = `status-report-${timestamp}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Failed to export report:', error);
+    alert('Failed to export status report');
+  }
+}
+
 async function init() {
   initTheme();
   await refreshStatus();
