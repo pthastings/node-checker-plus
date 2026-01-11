@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- `npm start` - Start the production server
+- `npm run start:local` - Start the local Express server
 - `npm run dev` - Start development server with auto-reload (Node 18+)
-- `PORT=3001 npm start` - Run on a custom port
+- `PORT=3001 npm run start:local` - Run on a custom port
 
 ## Architecture
 
@@ -28,7 +28,8 @@ This is a Node.js + Express site status monitoring dashboard.
   - `settings.checkInterval` - Auto-refresh interval (ms)
   - `settings.defaultTimeout` - Request timeout (ms)
   - `settings.slowThreshold` - Response time threshold for "slow" status (ms)
-  - `sites[]` - Array of sites with id, name, url, optional timeout
+  - `settings.password` - Dashboard login password (optional)
+  - `sites[]` - Array of sites with id, name, url, optional timeout, optional link
 
 ## API Endpoints
 
@@ -36,9 +37,12 @@ This is a Node.js + Express site status monitoring dashboard.
 - `GET /api/status/:siteId` - Get status of a specific site
 - `POST /api/refresh` - Trigger immediate status check
 - `GET /api/config` - Get current configuration settings
+- `POST /api/auth` - Validate password (body: `{ "password": "..." }`)
 
 ## Features
 
+- **Password Protection**: Login overlay prompts for password; session persists in localStorage; logout button in header
+- **Clickable Site Names**: Site names link to their URL (or custom `link` field); opens in new tab
 - **Dark Mode Toggle**: Click the sun/moon icon to switch themes; persists in localStorage and respects system preference
 - **Live "Time Ago" Display**: The "Last checked" timestamp updates every second showing relative time (e.g., "just now", "30 seconds ago", "2 minutes ago")
 - **Auto-Refresh**: Status checks run automatically every 30 seconds
