@@ -14,7 +14,7 @@
     {
       "id": "piHole local",
       "name": "piHole local",
-      "url": "http://192.168.10.164/"
+      "url": "http://100.88.14.121/"
     },
     {
       "id": "example",
@@ -24,7 +24,7 @@
 	{
       "id": "Node 1 local ",
       "name": "BeeLink Node 1",
-      "url": "http://192.168.10.50/"
+      "url": "http://100.83.194.115/"
     }
 
   ]
