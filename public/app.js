@@ -3,6 +3,54 @@ let autoRefreshInterval = null;
 let lastCheckTime = null;
 let timeAgoInterval = null;
 
+// Authentication
+function isAuthenticated() {
+  return localStorage.getItem('authenticated') === 'true';
+}
+
+function showLoginOverlay() {
+  document.getElementById('login-overlay').classList.remove('hidden');
+}
+
+function hideLoginOverlay() {
+  document.getElementById('login-overlay').classList.add('hidden');
+}
+
+async function handleLogin(event) {
+  event.preventDefault();
+  const password = document.getElementById('password-input').value;
+  const errorEl = document.getElementById('login-error');
+
+  try {
+    const response = await fetch(`${API_BASE}/auth`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      localStorage.setItem('authenticated', 'true');
+      hideLoginOverlay();
+      errorEl.textContent = '';
+      startApp();
+    } else {
+      errorEl.textContent = 'Invalid password';
+    }
+  } catch (error) {
+    errorEl.textContent = 'Login failed. Is the server running?';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('authenticated');
+  if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+  if (timeAgoInterval) clearInterval(timeAgoInterval);
+  document.getElementById('password-input').value = '';
+  showLoginOverlay();
+}
+
 async function fetchStatus() {
   const response = await fetch(`${API_BASE}/status`);
   if (!response.ok) {
@@ -50,11 +98,17 @@ function renderSites(data) {
     return;
   }
 
-  container.innerHTML = data.sites.map(site => `
+  container.innerHTML = data.sites.map(site => {
+    const linkUrl = site.link || site.url;
+    const nameHtml = linkUrl
+      ? `<a href="${escapeHtml(linkUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(site.name)}</a>`
+      : escapeHtml(site.name);
+
+    return `
     <div class="site-card">
       <div class="status-indicator ${site.status}"></div>
       <div class="site-info">
-        <div class="site-name">${escapeHtml(site.name)}</div>
+        <div class="site-name">${nameHtml}</div>
         <div class="site-url">${escapeHtml(site.url || site.hostname || site.deviceId || '')}</div>
       </div>
       <div class="site-status">
@@ -67,7 +121,8 @@ function renderSites(data) {
         }
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function escapeHtml(text) {
@@ -132,8 +187,7 @@ async function exportReport() {
   }
 }
 
-async function init() {
-  initTheme();
+async function startApp() {
   await refreshStatus();
 
   // Auto-refresh every 30 seconds
@@ -141,6 +195,21 @@ async function init() {
 
   // Update time ago display every second
   timeAgoInterval = setInterval(updateTimeAgoDisplay, 1000);
+}
+
+async function init() {
+  initTheme();
+
+  // Setup login form handler
+  document.getElementById('login-form').addEventListener('submit', handleLogin);
+
+  // Check if already authenticated
+  if (isAuthenticated()) {
+    hideLoginOverlay();
+    startApp();
+  } else {
+    showLoginOverlay();
+  }
 }
 
 // Start the app

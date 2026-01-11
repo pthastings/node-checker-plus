@@ -2,7 +2,8 @@
   "settings": {
     "checkInterval": 30000,
     "defaultTimeout": 5000,
-    "slowThreshold": 2000
+    "slowThreshold": 2000,
+    "password": "changeme"
   },
   "sites": [
     {

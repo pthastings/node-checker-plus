@@ -41,4 +41,24 @@ router.get('/config', (req, res) => {
   }
 });
 
+router.post('/auth', (req, res) => {
+  try {
+    const config = loadConfig();
+    const { password } = req.body;
+    const correctPassword = config.settings.password;
+
+    if (!correctPassword) {
+      return res.json({ success: true });
+    }
+
+    if (password === correctPassword) {
+      return res.json({ success: true });
+    }
+
+    return res.status(401).json({ success: false, error: 'Invalid password' });
+  } catch (error) {
+    res.status(500).json({ error: 'Authentication failed', message: error.message });
+  }
+});
+
 module.exports = router;
