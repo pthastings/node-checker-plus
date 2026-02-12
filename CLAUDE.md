@@ -4,49 +4,72 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- `npm run start:local` - Start the local Express server
-- `npm run dev` - Start development server with auto-reload (Node 18+)
-- `PORT=3001 npm run start:local` - Run on a custom port
+- `npm run start:local` - Start local Express server (uses `sites.json`)
+- `npm run deploy` - Deploy to Vercel production
+- `vercel --prod` - Alternative deploy command
+- `vercel env ls` - List Vercel environment variables
+- `vercel env pull` - Pull env vars to local `.env` file
 
 ## Architecture
 
-This is a Node.js + Express site status monitoring dashboard.
+Site status monitoring dashboard with **dual deployment modes**:
 
-### Backend
-- Entry point: `server/index.js` - Express server setup
-- Routes: `server/routes/status.js` - API endpoints for status checks
-- Services: `server/services/checker.js` - Site checking logic using axios
+### Vercel Serverless (Production)
+- `api/` - Serverless functions auto-mapped to `/api/*`
+  - `status.js` - GET /api/status (all sites)
+  - `status/[siteId].js` - GET /api/status/:id (single site)
+  - `refresh.js` - POST /api/refresh
+  - `config.js` - GET /api/config
+  - `auth.js` - POST /api/auth
+- `lib/checker.js` - HTTP check logic, reads `SITES_CONFIG` env var
+- `lib/tailscale.js` - Tailscale API client
+
+### Local Express (Development)
+- `server/index.js` - Express server entry point
+- `server/routes/status.js` - API route handlers
+- `server/services/checker.js` - Checking logic, reads `sites.json`
 
 ### Frontend
-- Static files served from `public/`
-- `public/index.html` - Dashboard HTML
-- `public/styles.css` - Styling with status indicators (green/yellow/red)
-- `public/app.js` - Frontend logic with auto-refresh every 30 seconds and live "time ago" display
+- `public/` - Static files (index.html, app.js, styles.css)
+- Vanilla JS with auto-refresh every 30 seconds
 
-### Configuration
-- `sites.json` - Site definitions and settings
-  - `settings.checkInterval` - Auto-refresh interval (ms)
-  - `settings.defaultTimeout` - Request timeout (ms)
-  - `settings.slowThreshold` - Response time threshold for "slow" status (ms)
-  - `settings.password` - Dashboard login password (optional)
-  - `sites[]` - Array of sites with id, name, url, optional timeout, optional link
+## Configuration
 
-## API Endpoints
+### Vercel Environment Variables
 
-- `GET /api/status` - Get status of all configured sites
-- `GET /api/status/:siteId` - Get status of a specific site
-- `POST /api/refresh` - Trigger immediate status check
-- `GET /api/config` - Get current configuration settings
-- `POST /api/auth` - Validate password (body: `{ "password": "..." }`)
+| Variable | Description |
+|----------|-------------|
+| `SITES_CONFIG` | JSON string with sites array (required) |
+| `TAILSCALE_API_KEY` | API key from Tailscale admin console |
+| `TAILSCALE_TAILNET` | Tailnet name (use `-` for default) |
+| `DEFAULT_TIMEOUT` | Request timeout ms (default: 5000) |
+| `SLOW_THRESHOLD` | Slow threshold ms (default: 2000) |
 
-## Features
+### SITES_CONFIG Format
 
-- **Password Protection**: Login overlay prompts for password; session persists in localStorage; logout button in header
-- **Clickable Site Names**: Site names link to their URL (or custom `link` field); opens in new tab
-- **Dark Mode Toggle**: Click the sun/moon icon to switch themes; persists in localStorage and respects system preference
-- **Live "Time Ago" Display**: The "Last checked" timestamp updates every second showing relative time (e.g., "just now", "30 seconds ago", "2 minutes ago")
-- **Auto-Refresh**: Status checks run automatically every 30 seconds
-- **Manual Refresh**: Click the Refresh button to trigger an immediate status check
-- **Visual Status Indicators**: Color-coded status (green=UP, red=DOWN, yellow=SLOW) with glow effects
-- **Response Time Tracking**: Displays response time in milliseconds for each site
-- **Responsive Design**: Mobile-friendly layout that adapts to smaller screens
+```json
+{"sites":[{"id":"my-site","name":"My Site","type":"http","url":"https://example.com"},{"id":"my-device","name":"My Device","type":"tailscale","deviceId":"device-name.tail1234.ts.net"}]}
+```
+
+## Critical: Tailscale Device IDs
+
+**The `deviceId` must match the FULL device name from Tailscale API**, including the tailnet suffix.
+
+- **Correct:** `cambridge-node.tail3ef52.ts.net`
+- **Wrong:** `cambridge-node`
+
+The checker matches deviceId against: `device.id`, `device.nodeKey`, `device.name`, or `device.hostname` (see `lib/checker.js:78-83`).
+
+To find correct device names:
+```bash
+curl -s -u "YOUR_API_KEY:" "https://api.tailscale.com/api/v2/tailnet/-/devices" | jq '.devices[].name'
+```
+
+## Site Types
+
+| Type | Check Method | Required Fields |
+|------|--------------|-----------------|
+| `http` | HTTP GET request | `url` |
+| `tailscale` | Tailscale API device lookup | `deviceId` (full name with tailnet suffix) |
+
+HTTP checks work from Vercel for public URLs. Tailscale MagicDNS URLs (`*.ts.net`) are NOT reachable from Vercel - use `type: "tailscale"` for those devices instead.
