@@ -1,6 +1,9 @@
 const axios = require('axios');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
+
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
 const configPath = path.join(__dirname, '../../sites.json');
 
@@ -19,7 +22,8 @@ async function checkSite(site, defaultTimeout, slowThreshold) {
       validateStatus: () => true,
       headers: {
         'User-Agent': 'SiteStatusChecker/1.0'
-      }
+      },
+      httpsAgent
     });
 
     const responseTime = Date.now() - startTime;
